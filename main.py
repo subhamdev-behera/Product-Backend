@@ -96,10 +96,13 @@ async def delete_user(user_id: str):
 
 # --- Product Endpoints ---
 
-@app.post("/products", response_model=Dict[str, str], status_code=status.HTTP_201_CREATED)
+@app.post("/products/add", response_model=Dict[str, str], status_code=status.HTTP_201_CREATED)
 async def create_product(product: Product):
-    product_dict = jsonable_encoder(product)
-    product_dict.pop("id", None)
+    product_dict = jsonable_encoder(product, by_alias=True)
+
+    if product_dict.get("_id") is None:
+        product_dict.pop("_id", None)
+
     result = await product_collection.insert_one(product_dict)
     return {"id": str(result.inserted_id)}
 
